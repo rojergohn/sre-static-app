@@ -2,3 +2,17 @@ NOTES:
 
 Completed till step: 6
 Start from step: 7
+
+
+## Create a docker image
+sudo docker build -t staticimage .
+
+
+## Run the image which build
+sudo docker run -p 801:80 -d f95439713c6c
+
+
+FROM nginx:latest
+WORKDIR . /app
+COPY . /usr/share/nginx/html
+EXPOSE 80
