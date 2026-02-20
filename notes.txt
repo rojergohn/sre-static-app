@@ -1,0 +1,4 @@
+NOTES:
+
+Completed till step: 6
+Start from step: 7
