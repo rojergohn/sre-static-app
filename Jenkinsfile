@@ -8,7 +8,7 @@ pipeline {
     environment {
         AWS_ACCOUNT_ID = 'YOUR_ACCOUNT_ID'
         REGION = 'ap-south-1'
-        REPO_NAME = 'sre-static-app'
+        REPO_NAME = '205994119856.dkr.ecr.us-east-1.amazonaws.com/srestaticappimg' // corrected Done
     }
 
     stages {
