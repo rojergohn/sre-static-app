@@ -6,8 +6,9 @@ pipeline {
 
     environment {
         AWS_REGION = 'us-east-1'
-        ECR_REPO = '205994119856.dkr.ecr.us-east-1.amazonaws.com/srestaticappimg'
+        AWS_ACCOUNT_ID = '205994119856'
         IMAGE_NAME = 'sre-static-app'
+        ECR_REPO_NAME = 'srestaticappimg'
     }
 
     stages {
@@ -22,7 +23,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${IMAGE_NAME}:latest")
+                    docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
                 }
             }
         }
@@ -32,13 +33,21 @@ pipeline {
                 script {
                     withAWS(credentials: 'aws-jenkins-creds', region: "${AWS_REGION}") {
 
-                        def ecrLogin = ecrLogin()
+                        sh """
+                        aws ecr get-login-password --region ${AWS_REGION} | \
+                        docker login --username AWS \
+                        --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                        """
 
-                        sh ecrLogin
+                        sh """
+                        docker tag ${IMAGE_NAME}:${BUILD_NUMBER} \
+                        ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${BUILD_NUMBER}
+                        """
 
-                        docker.withRegistry("https://${ECR_REPO}", "") {
-                            docker.image("${IMAGE_NAME}:latest").push("latest")
-                        }
+                        sh """
+                        docker push \
+                        ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${BUILD_NUMBER}
+                        """
                     }
                 }
             }
